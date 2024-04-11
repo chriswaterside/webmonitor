@@ -36,10 +36,7 @@ $email = ["chris@cevsystems.co.uk"];
 $domain = "cevsystems.co.uk";
 
 $smtp = (object) [
-            'Host' => 'mail.stackmail.com',
-            'SMTPAuth' => true,
-            'Username' => 'webmonitor@ramblers-webs.org.uk',
-            'Password' => 'Wi05c8a01',
+           
             'Port' => 587,
             'FromEmail' => 'webmonitor@ramblers-webs.org.uk',
 ];
