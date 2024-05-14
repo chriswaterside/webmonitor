@@ -17,9 +17,8 @@ class Session {
     private $skipFolders = [];
     private $skipExtensions = [];
     private $processExtensions = null;
-    private $centralstore = false;
-    private $central_store_key = null;
-    private $central_store_url = null;
+    private $account = null;
+    private $emailinterval = null;
 
     public function __construct() {
         date_default_timezone_set('Europe/London');
@@ -29,10 +28,7 @@ class Session {
         } else {
             require('config_master.php');
         }
-        if (file_exists('config.centralaccounts.php')) {
-            require('config.centralaccounts.php');
-            $this->centralstore = true;
-        }
+
         if (isset($smtp)) {
             $this->smtp = $smtp;
         }
@@ -49,16 +45,17 @@ class Session {
         $this->checkConfigValue('Path', $path);
         $this->checkConfigValue('Skip Extensions', $skipExtensions);
         $this->checkConfigValue('Email Interval', $emailinterval);
-        $this->domain = $domain;
-        $this->host = $host;
-        $this->database = $database;
-        $this->user = $user;
-        $this->password = $password;
+        $this->domain = trim($domain);
+        $this->host = trim($host);
+        $this->database = trim($database);
+        $this->user = trim($user);
+        $this->password = trim($password);
         // check $path, ifit  endswith / then remove /
         $this->path = rtrim($path, "/");
         if (!file_exists($this->path)) {
             Logfile::writeError("Path to be scanned does not exist: " . $this->path);
-            $this->path = BASE_PATH; // revert to base folder
+            die();
+            // $this->path = BASE_PATH; // revert to base folder
         }
         if (is_array($email)) {
             foreach ($email as $value) {
@@ -67,14 +64,14 @@ class Session {
         } else {
             $this->email[] = $email;
         }
-        if ($this->centralstore) {
-            $this->central_store_key = $central_store_key;
-            $this->central_store_url = $central_store_url;
-        }
-        
+
+
         if (isset($skipFolders)) {
-            $this->skipFolders = $skipFolders;
+            if ($skipFolders !== null) {
+                $this->skipFolders = $skipFolders;
+            }
         }
+
         if (isset($joomlaFolders)) {
             foreach ($joomlaFolders as $value) {
                 array_push($this->skipFolders, $value . "/tmp/");
@@ -103,6 +100,20 @@ class Session {
         }
 
         $this->emailinterval = $emailinterval;
+
+        if (!isset($organisation)) {
+            $organisation = null;
+        }
+        if (!isset($supportemail)) {
+            $supportemail = null;
+        }
+        if (!isset($central_store_url)) {
+            $central_store_url = null;
+        }
+        if (!isset($central_store_key)) {
+            $central_store_key = null;
+        }
+        $this->account = new Account($this, $organisation, $supportemail, $central_store_url, $central_store_key);
     }
 
     public function path() {
@@ -113,12 +124,12 @@ class Session {
         return $this->domain;
     }
 
-    public function centralStoreKey() {
-        return $this->central_store_key;
+    public function getAccount() {
+        return $this->account;
     }
 
-    public function centralStoreUrl() {
-        return $this->central_store_url;
+    public function emailHeader() {
+        return $this->account->emailHeader();
     }
 
     public function skipFolders() {
@@ -218,5 +229,4 @@ class Session {
             die();
         }
     }
-
 }

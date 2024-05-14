@@ -1,62 +1,103 @@
 <?php
 
-// start of config  version v1.03
+// start of config file - copy this sample and rename it to config.php
+//   then fill in the details below
+// version v1.04
+//    Chnage to make web monitor much more of general use rather then ramblers-webs speciifc
 // version v1.03
 //    change email address(es) to be an array
 // version v1.02
 //    addition of $key field to set key to upload json log file to ramblers-webs.org.uk
-//    
-// $email - email address to send results
-// $domain - domain/account being scanned
-//
+
+// The name of the organisation setting up the monitoring system or blank
+// this is included in any generated report 
+$organisation = "Ramblers Webs";
+
+// the email address of who to contact if the web master for a domain requires support
+// this is included in any generated report 
+$supportemail = "someone@somewhere.org.uk";
+
+// $email - email address to send reports of changes to the server files or null
+$email = ["someone@somewhere.org.uk"];
+
+// $domain - domain being scanned
+$domain = "somewhere.org.uk";
+
+// the smtp details of a mail server or null (web monitor will use PHP Mail option)
+$smtp = (object) [
+            'Host' => 'xxxx',
+            'SMTPAuth' => true,
+            'Username' => 'xxx',
+            'Password' => 'xxx',
+            'Port' => 587,
+            'FromEmail' => 'xxx@yyy',
+];
+
 // $host, $database, $user, $password 
-//      Set up a mysql database and record its details in this section
-//      For ramblers webs accounts set $host to "localhost";
-//          set the $database and $user to the name of the database 
-//          
+//      Set up a mysql database and record its details in this section  
+$host = "localhost";
+$database = "";
+$user = "";
+$password = "";
+
+
 // $path - top level to search, hashscan will monitor this folder and all subfolders
 //          except for those folders specified in the $skipFolders field
-//          
+//$path = "D:/Data/XAMPPServer/htdocs/";
+$path = BASE_PATH;
+
 // $skipFolders - skip the following folders, these should be defined relative to the $path value
-// 
-// $key field to set key to upload json log file to ramblers-webs.org.uk
-// 
 // NOTE: end all subfolders with a / otherwise folders with similar names will also be excluded
+$skipFolders = ["folder1/", "folder2/", "folder3/"];
+
 // If you are using a CMS then you should consider which folders to exclude
 // 
 // If you are using Joomla then specify the following item 
-// $joomlaFolders - specify the folders that contain Joomla.
+// $joomlaFolders - An array of folders contaioning Joomla installs
+//              specify the folders that contain Joomla.
 //              This will add the subfolders tmp,log,cache and administrator/cache to the $skipFolders item
-// 
+//              An array of folders contaioning Joomla installs
+//  $joomlaFolders = [];
+//  $joomlaFolders = ["abc","cde"];
+$joomlaFolders = ["folder*"];
+
+
 // $processExtensions - specify the file extensions that you wish to be checked, supply them in lower case.
 //      extensions are not treated as case sensitive so jpg will scan for both JPG and jpg files
-//      for Ramblers-webs it is recommended to monitor the following file types
+//      It is recommended to monitor at least the following file types
 //      "txt", "php", "jpg", "htm", "html", "cgi", "pdf", "ini", "htaccess"
-//      
-// $emailinterval - If no changes are found then hashscan will send an email if this time period has elapsed.
+//      $processExtensions = ["txt", "php", "jpg", "htm", "html", "cgi", "pdf", "ini", "htaccess"];
+//      $processExtensions = NULL; processes all file types.
+$processExtensions = NULL; 
+
+// $skipExtensions - if the above item is null then this option will ignore these extensions
+//         $skipExtensions = ["log", "pdf"];
+//         $skipExtensions = [];
+$skipExtensions = ["log", "pdf"];
+
+// $emailinterval - If changes are found then hashscan will send an email
+//      If no changes are found then hashscan will send an email if this time period has elapsed.
 //      This is so you get a regular email and know that the scheduled task is still running
 //      Interval between emails if no changes P10D - ten days
-//      For Ramblers-webs sites it is recommended to use a value of P30D - thirty days 
 
-$domain = "derbyramblers.org.uk";
-$email = ["sitestatus@" . $domain];
+$emailinterval = "P10D";
 
-$host = "localhost";
-$database = "monitorv01";
-$user = $database;
-$password = "password";
-$key = md5($domain);
+//   If you wish to store the webmonitor_status_domain.json.log from each domain on a central server then set up the next items
+//    $central_store_url is a central form that accepts the upload of these files or NULL
+//    $central_store_key is a security key to stop others from posting to the form
+//
+//         $central_store_url = 'https://myserver/storejson.php';
+//         $central_store_url = null;
+$central_store_url = 'https://myserver/storejson.php';
+$central_store_key ="";
+// This URL must point to a form which accepts the fields for 
+//      the domain name
+//      a key
+//      the json text
+//      the form must use POST and have the fields: domain, key and json
+//       $data['domain'] = $this->domain;
+//       $data['key'] = $this->centralStoreKey;
+//       $data['json'] = $json;
 
-$path = BASE_PATH;
-$skipFolders = NULL;
-
-//$joomlaFolders = NULL;
-$joomlaFolders = ["public_html/*"];
-$wordPressFolders = ["public_html/*"];
-
-//$processExtensions = ["txt", "php", "jpg", "htm", "html", "cgi", "pdf", "ini", "htaccess"];
-$processExtensions = NULL; // process all file types
-$skipExtensions = ["log"];
-
-$emailinterval = "P14D";
 // end of config
+

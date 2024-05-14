@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of functions
  *
@@ -71,20 +65,6 @@ class Functions {
         }
         return $parts[count($parts) - 1];
     }
-
-//    public static function deleteFolderOLD($dir) {
-//        if (file_exists($dir)) {
-//            // delete folder and its contents
-//            foreach (glob($dir . '/*') as $file) {
-//                if (is_dir($file)) {
-//                    Functions::deleteFolder($file);
-//                } else {
-//                    unlink($file);
-//                }
-//            }
-//            rmdir($dir);
-//        }
-//    }
 
     public static function deleteFolder($dir) {
         if (file_exists($dir)) {

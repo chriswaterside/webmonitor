@@ -3,6 +3,8 @@
 class Scan {
 
     private $db;
+    private $domain;
+    private $session;
     private $report;
     private $scancode = 0;
     private $nofilesscanned = 0;
@@ -18,20 +20,18 @@ class Scan {
 
     //const SQL_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"; // strftime() format
 
-    public function __construct($dbconfig, $domain) {
-
+    public function __construct($session) {
+        $this->session = $session;
+        $dbconfig = $session->getDBconfig();
         $this->db = new ScanDatabase($dbconfig);
-        $this->domain = $domain;
+        $this->domain = $session->domain();
         $this->restart();
     }
 
     public function restart() {
         $this->db->restart();
-        $this->report = "";
-        $this->report .= "<p><small>You are receiving this email because we believe you are one of the web masters for this domain.</small></p>" . PHP_EOL;
-        $this->report .= "<p><small>If this is not correct or you are changing your email address or a new web master is taking over, then please raise a support ticket</small></p>" . PHP_EOL;
-        $this->report .= "<p><small><a href='mailto:support@ramblers-websites.zendesk.com?Subject=" . $this->domain . "' target='_blank'>support@ramblers-websites.zendesk.com</a></small></p><hr/>" . PHP_EOL;
-        $this->report .= "<p>Report of changes to domain <b>" . $this->domain . "</b></p>" . PHP_EOL;
+        $this->report = $this->session->emailHeader();
+      
     }
 
     public function __destruct() {
@@ -234,5 +234,4 @@ class Scan {
     public function deleteOldTestedRecords() {
         $this->db->removeDeleted();
     }
-
 }

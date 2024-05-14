@@ -9,7 +9,7 @@ class Isapprunning {
 
     private $testrunningfile = "application_is_running.log";
     private $isalreadyrunning = false;
-    private $timediff;
+    private $timediff = null;
     private $errorText = "";
     private $mstatus;
 

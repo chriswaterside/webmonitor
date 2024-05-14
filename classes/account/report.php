@@ -5,7 +5,7 @@
  *
  * @author Admin
  */
-class AccountReport {
+class AccountReport implements JsonSerializable {
 
     public $domain;
     public $path;
@@ -105,7 +105,7 @@ class AccountReport {
             $this->processConfigItem($folder, "\$sef_rewrite", $item);
             $this->processConfigItem($folder, "\$sef_suffix", $item);
             $this->processConfigItem($folder, "\$tmp_path", $item);
-            $this->processConfigItem($folder, "\$log_path", $item);                   
+            $this->processConfigItem($folder, "\$log_path", $item);
         }
     }
 
@@ -147,8 +147,8 @@ class AccountReport {
         $no = 0;
         $size = 0;
         foreach ($files as $value) {
-            $no+=1;
-            $size+=filesize($value);
+            $no += 1;
+            $size += filesize($value);
         }
         $parts = explode("/", $file);
         $count = count($parts);
@@ -255,7 +255,7 @@ class AccountReport {
             foreach ($parts as $item) {
                 $value = $this->processPHPLineItem("DEV_LEVEL", $item);
                 if ($value != "") {
-                    $release.="." . $value;
+                    $release .= "." . $value;
                     break;
                 }
             }
@@ -278,4 +278,24 @@ class AccountReport {
         return "";
     }
 
+    public function jsonSerialize(): mixed {
+        return [
+            'webmonitorversion' => $this->webmonitorversion,
+            'reportversion' => $this->reportversion,
+            'domain' => $this->domain,
+            'path' => $this->path,
+            'nofilesscanned' => $this->nofilesscanned,
+            'totalsizescanned' => $this->totalsizescanned,
+            'directory' => $this->directory,
+            'directories' => $this->directories,
+            'files' => $this->files,
+            'wordpressversions' => $this->wordpressversions,
+            'joomlaversions' => $this->joomlaversions,
+            'joomlabackups' => $this->joomlabackups,
+            'creationdate' => $this->creationdate,
+            'config' => $this->config,
+            'latestfile' => $this->latestfile,
+            'largestfiles' => $this->largestfiles
+        ];
+    }
 }
