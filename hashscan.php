@@ -7,8 +7,8 @@
 //
 //  User options - all user options are contained in the config.php file
 
-define("VERSION_NUMBER", "6.0.0");
-//   version 6.0.0
+define("VERSION_NUMBER", "6.0.1");
+//   version 6.0.1
 //          Changes to make system general and not Ramblers-Webs specific
 //   Version 5.6.3
 //          Do not save account data if key==none
