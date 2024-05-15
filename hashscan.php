@@ -3,11 +3,11 @@
 // Code to scan a web site's account for changes in any of the files.
 // Author Chris Vaughan chris@cevsystems.co.uk
 //                      copyright 2014-2024
+//                      https://github.com/chriswaterside/WebMonitor
 //
 //  User options - all user options are contained in the config.php file
 
-define("VERSION_NUMBER", "6.0.0Dev");
-//define("VERSION_NUMBER", "5.6.3");
+define("VERSION_NUMBER", "6.0.0");
 //   version 6.0.0
 //          Changes to make system general and not Ramblers-Webs specific
 //   Version 5.6.3

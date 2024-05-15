@@ -7,8 +7,7 @@
 class Programupdate {
 
     const UPDATESITE = "https://raw.githubusercontent.com/chriswaterside/WebMonitorUpdateService/main/webmonitor.json";
-    const INSTALLFILE = 'classes/monitorinstall.php';
-
+ 
     private $version = '';
     private $webmonitorzip = '';
 
