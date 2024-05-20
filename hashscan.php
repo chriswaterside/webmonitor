@@ -7,7 +7,9 @@
 //
 //  User options - all user options are contained in the config.php file
 
-define("VERSION_NUMBER", "6.0.1");
+define("VERSION_NUMBER", "6.0.2");
+//   Version 6.0.2
+//          PHPMailer 6.9.1
 //   version 6.0.1
 //          Changes to make system general and not Ramblers-Webs specific
 //   Version 5.6.3
@@ -90,9 +92,9 @@ chdir($exepath);
 require('classes/autoload.php');
 spl_autoload_register('autoload');
 
-require 'classes/PHPMailer-6.7.1/src/PHPMailer.php';
-require 'classes/PHPMailer-6.7.1/src/SMTP.php';
-require 'classes/PHPMailer-6.7.1/src/Exception.php';
+require 'classes/PHPMailer-6.9.1/src/PHPMailer.php';
+require 'classes/PHPMailer-6.9.1/src/SMTP.php';
+require 'classes/PHPMailer-6.9.1/src/Exception.php';
 $session = new Session();
 $domain = $session->domain();
 // set to the user defined error handler
@@ -106,7 +108,7 @@ if ($update->required()) {
     $installer->install();
     logfile::close();
     exit();
-} 
+}
 $appStatus = new Isapprunning();
 $alreadyRunning = false;
 switch ($appStatus->status()) {
