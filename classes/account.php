@@ -17,8 +17,6 @@ class Account {
 
     const STATUS_FILE = 'webmonitor_status_domain.json.log';
 
-    // const CENTRAL_STORE_URL = 'https://cache.ramblers-webs.org.uk/storejson.php';
-
     public function __construct($session, $org, $email, $url, $key) {
         $this->domain = $session->domain();
         $this->path = $session->path();
@@ -26,7 +24,7 @@ class Account {
         $this->supportEmail = $email;
         $this->storeUrl = $url;
         $this->storeKey = $key;
-        $this->site = new AccountReport($this->domain, $this->path);
+        $this->site = new AccountReport($session);
     }
 
     public function emailHeader() {
@@ -48,13 +46,7 @@ class Account {
     }
 
     public function StoreStatus($scan) {
-        if ($scan != null) {
-            $this->site->nofilesscanned = $scan->getNoFilesScanned();
-            $this->site->totalsizescanned = $scan->getTotalSizeScanned();
-            $this->site->latestfile = $scan->getLatestFile();
-            $this->site->largestfiles = $scan->getLargestFiles();
-        }
-
+        $this->site->setScanValues($scan);
         $json = json_encode($this->site);
         $ok = file_put_contents($this->path . DIRECTORY_SEPARATOR . self::STATUS_FILE, $json);
         if ($ok === false) {

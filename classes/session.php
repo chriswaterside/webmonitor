@@ -57,6 +57,7 @@ class Session {
             die();
             // $this->path = BASE_PATH; // revert to base folder
         }
+
         if (is_array($email)) {
             foreach ($email as $value) {
                 $this->email[] = $value;

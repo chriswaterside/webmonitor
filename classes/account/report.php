@@ -7,24 +7,26 @@
  */
 class AccountReport implements JsonSerializable {
 
-    public $domain;
-    public $path;
-    public $webmonitorversion;
-    public $reportversion;
-    public $nofilesscanned;
-    public $totalsizescanned;
-    public $directory;
-    public $directories;
-    public $files;
-    public $wordpressversions;
-    public $joomlaversions;
-    public $joomlabackups;
-    public $config;
-    public $creationdate;
-    public $latestfile;
-    public $timediff;
-    public $largestfiles;
+    private $domain;
+    private $path;
+    private $webMonitorVersion = "1.05";
+    private $reportVersion;
+    private $noFilesScanned;
+    private $totalSizeScanned;
+    private $topLevelDirectories = [];
+    private $controlFiles = [];
+    private $wordPressVersions = [];
+    private $joomlaVersions = [];
+    private $joomlaBackups;
+    private $config = [];
+    private $creationDate;
+    private $latestFile;
+    private $largestFiles;
 
+// Format 1.05
+//     change case of variables
+//     rationalise structure to scan top two levels of folders
+//     add scanning for Joomla 4 and 5   
 // format 1.04
 //     addition of Joomla and WP versions
 // format 1.03
@@ -34,52 +36,65 @@ class AccountReport implements JsonSerializable {
 // format 1.02
 //     addition of date created field
 
-    public function __construct($domain, $path) {
-        $this->webmonitorversion = VERSION_NUMBER;
-        $this->reportversion = "1.04";
-        $this->creationdate = date("Y-m-d h:i:s");
-        $this->domain = $domain;
-        $this->path = $path . DIRECTORY_SEPARATOR;
-        $this->files = array();
-        $this->config = array();
-        $this->wordpressversions = array();
-        $this->joomlaversions = array();
+    public function __construct($session) {
+        $this->webMonitorVersion = VERSION_NUMBER;
+        $this->creationDate = date("Y-m-d h:i:s");
+        $this->domain = $session->domain();
+        $this->path = $session->path() . DIRECTORY_SEPARATOR;
 
-        $this->getDirs();
-        $this->getPublicDirs();
-        $this->getFileContent($this->path . "php.ini");
-        $this->getFileContent($this->path . ".htaccess");
-        $this->getFileContent($this->path . ".user.ini");
-        $this->getFileContent($this->path . "public_html/.htaccess");
-        $this->getFileContent($this->path . "public_html/php.ini");
-        $this->getFileContent($this->path . "public_html/.user.ini");
+        $this->getTopLevelDirs();
+        $this->getControlFiles();
+
         $this->getJoomlaBackups();
         $this->getJoomlaConfigs();
-        $this->getWPVersions();
         $this->getJoomlaVersions();
+        $this->getWPVersions();
     }
 
-    private function getDirs() {
-        $this->directory = $this->path . "public_html/";
+    private function removePath($dir) {
+        if (str_starts_with($dir, $this->path)) {
+            $folder = substr($dir, strlen($this->path));
+            return $folder;
+        }
+        return $dir;
     }
 
-    private function getPublicDirs() {
-        $this->directories = array();
-        foreach (glob($this->directory . '*', GLOB_ONLYDIR) as $dir) {
-            $dir = str_replace(__DIR__ . '/', '', $dir);
-            array_push($this->directories, $dir);
+    private function addPath($dir) {
+        return $this->path . $dir;
+    }
+
+    private function getTopLevelDirs() {
+        $directories = glob($this->path . '*', GLOB_ONLYDIR);
+
+        $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
+        foreach ($directories as $dir) {
+            $directories = glob($dir . '/*', GLOB_ONLYDIR);
+            $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
+        }
+        foreach ($this->topLevelDirectories as $key => $dir) {
+            $this->topLevelDirectories[$key] = $this->removePath($dir);
+        }
+    }
+
+    private function getControlFiles() {
+        foreach ($this->topLevelDirectories as $dir) {
+            $folder = $this->addPath($dir);
+            $this->getFileContent($folder . "/php.ini");
+            $this->getFileContent($folder . "/.htaccess");
+            $this->getFileContent($folder . "/.user.ini");
         }
     }
 
     private function getFileContent($filename) {
         if (file_exists($filename)) {
-            $this->files[$filename] = file_get_contents($filename);
+            $this->controlFiles[$this->removePath($filename)] = file_get_contents($filename);
         }
     }
 
     private function getJoomlaConfigs() {
         $this->config = array();
-        foreach ($this->directories as $folder) {
+        foreach ($this->topLevelDirectories as $dir) {
+            $folder = $this->addPath($dir);
             $this->getJoomlaConfig($folder);
         }
     }
@@ -98,14 +113,15 @@ class AccountReport implements JsonSerializable {
         $contents = file_get_contents($file);
         $parts = explode("\n", $contents);
         foreach ($parts as $item) {
-            $this->processConfigItem($folder, "\$sitename", $item);
-            $this->processConfigItem($folder, "\$gzip", $item);
-            $this->processConfigItem($folder, "\$caching", $item);
-            $this->processConfigItem($folder, "\$sef", $item);
-            $this->processConfigItem($folder, "\$sef_rewrite", $item);
-            $this->processConfigItem($folder, "\$sef_suffix", $item);
-            $this->processConfigItem($folder, "\$tmp_path", $item);
-            $this->processConfigItem($folder, "\$log_path", $item);
+            $dir = $this->removePath($folder);
+            $this->processConfigItem($dir, "\$sitename", $item);
+            $this->processConfigItem($dir, "\$gzip", $item);
+            $this->processConfigItem($dir, "\$caching", $item);
+            $this->processConfigItem($dir, "\$sef", $item);
+            $this->processConfigItem($dir, "\$sef_rewrite", $item);
+            $this->processConfigItem($dir, "\$sef_suffix", $item);
+            $this->processConfigItem($dir, "\$tmp_path", $item);
+            $this->processConfigItem($dir, "\$log_path", $item);
         }
     }
 
@@ -121,8 +137,9 @@ class AccountReport implements JsonSerializable {
     }
 
     private function getJoomlaBackups() {
-        $this->joomlabackups = array();
-        foreach ($this->directories as $folder) {
+        $this->joomlaBackups = array();
+        foreach ($this->topLevelDirectories as $dir) {
+            $folder = $this->addPath($dir);
             $this->getAkeebaBackups($folder);
         }
     }
@@ -155,20 +172,15 @@ class AccountReport implements JsonSerializable {
         $folder = $parts[$count - 6];
         $file = end($parts);
         $save = new AccountAkeeba($no, $size, $folder, $file);
-        $this->joomlabackups[] = $save;
+        $this->joomlaBackups[] = $save;
     }
 
     private function getWPVersions() {
-// search public_html and sub folders
-        $folder = $this->directory;
-        $release = $this->findWPVersion($folder);
-        if ($release != "") {
-            $this->wordpressversions[$folder] = $release;
-        }
-        foreach ($this->directories as $folder) {
+        foreach ($this->topLevelDirectories as $dir) {
+            $folder = $this->addPath($dir);
             $release = $this->findWPVersion($folder);
             if ($release != "") {
-                $this->wordpressversions[$folder] = $release;
+                $this->wordPressVersions[$this->removePath($folder)] = $release;
             }
         }
     }
@@ -177,8 +189,9 @@ class AccountReport implements JsonSerializable {
         $path = $folder . "wp-includes/version.php";
         $release = $this->findWPRelease($path);
 
-        if ($release != "")
+        if ($release != "") {
             return $release;
+        }
     }
 
     private function findWPRelease($path) {
@@ -198,42 +211,34 @@ class AccountReport implements JsonSerializable {
     }
 
     private function getJoomlaVersions() {
-// search public_html and sub folders
-        $folder = $this->directory;
-        $release = $this->findJoomlaVersion($folder);
-        if ($release != "") {
-            $this->joomlaversions[$folder] = $release;
-        }
-        foreach ($this->directories as $folder) {
+        foreach ($this->topLevelDirectories as $dir) {
+            $folder = $this->addPath($dir);
             $release = $this->findJoomlaVersion($folder);
             if ($release != "") {
-                $this->joomlaversions[$folder] = $release;
+                $this->joomlaVersions[$this->removePath($folder)] = $release;
             }
         }
     }
 
     private function findJoomlaVersion($folder) {
+        // 5.0+
+        $path = $folder . "/administrator/manifests/files/joomla.xml";
+        $release = $this->findJoomlaRelease($path);
+        if ($release != "") {
+            return $release;
+        }
         // 3.8+
         $path = $folder . "/libraries/src/Version.php";
         $release = $this->findJoomlaRelease($path);
-        // if Joomla 2.5 or above read htaccess and .ini files
-        $this->getFileContent($folder . "/.htaccess");
-        $this->getFileContent($folder . "/php.ini");
-        $this->getFileContent($folder . "/.user.ini");
-
-        if ($release != "")
+        if ($release != "") {
             return $release;
+        }
         // 2.5 and 3.5
         $path = $folder . "/libraries/cms/version/version.php";
         $release = $this->findJoomlaRelease($path);
-        // if Joomla 2.5 or above read htaccess and .ini files
-        $this->getFileContent($folder . "/.htaccess");
-        $this->getFileContent($folder . "/php.ini");
-        $this->getFileContent($folder . "/.user.ini");
-
-        if ($release != "")
+        if ($release != "") {
             return $release;
-
+        }
         // 1.5 
         $path = $folder . "/libraries/joomla/version.php";
         $release = $this->findJoomlaRelease($path);
@@ -245,6 +250,13 @@ class AccountReport implements JsonSerializable {
         if (file_exists($path)) {
             $contents = file_get_contents($path);
             $parts = explode("\n", $contents);
+            foreach ($parts as $item) {
+                $value = $this->processPHPXmlLineItem($item);
+                if ($value != "") {
+                    $release = $value;
+                    break;
+                }
+            }
             foreach ($parts as $item) {
                 $value = $this->processPHPLineItem("RELEASE", $item);
                 if ($value != "") {
@@ -263,6 +275,18 @@ class AccountReport implements JsonSerializable {
         return $release;
     }
 
+    private function processPHPXmlLineItem($line) {
+        $pos = strpos($line, "<version>");
+        if ($pos !== false) {
+            $pos = strpos($line, "</version>");
+            if ($pos !== false) {
+                $item = str_replace(["<version>", "</version>"], "", $line);
+                return trim($item);
+            }
+        }
+        return "";
+    }
+
     private function processPHPLineItem($value, $line) {
         $pos = strpos($line, $value . " ");
         if ($pos !== false) {
@@ -278,24 +302,32 @@ class AccountReport implements JsonSerializable {
         return "";
     }
 
+    public function setScanValues($scan) {
+        if ($scan != null) {
+            $this->noFilesScanned = $scan->getNoFilesScanned();
+            $this->totalSizeScanned = $scan->getTotalSizeScanned();
+            $this->latestFile = $scan->getLatestFile();
+            $this->largestFiles = $scan->getLargestFiles();
+        }
+    }
+
     public function jsonSerialize(): mixed {
         return [
-            'webmonitorversion' => $this->webmonitorversion,
-            'reportversion' => $this->reportversion,
+            'webMonitorVersion' => $this->webMonitorVersion,
+            'reportVersion' => $this->reportVersion,
             'domain' => $this->domain,
             'path' => $this->path,
-            'nofilesscanned' => $this->nofilesscanned,
-            'totalsizescanned' => $this->totalsizescanned,
-            'directory' => $this->directory,
-            'directories' => $this->directories,
-            'files' => $this->files,
-            'wordpressversions' => $this->wordpressversions,
-            'joomlaversions' => $this->joomlaversions,
-            'joomlabackups' => $this->joomlabackups,
-            'creationdate' => $this->creationdate,
+            'noFilesScanned' => $this->noFilesScanned,
+            'totalSizeScanned' => $this->totalSizeScanned,
+            'topLevelDirectories' => $this->topLevelDirectories,
+            'controlFiles' => $this->controlFiles,
+            'wordPressVersions' => $this->wordPressVersions,
+            'joomlaVersions' => $this->joomlaVersions,
+            'joomlaBackups' => $this->joomlaBackups,
+            'creationDate' => $this->creationDate,
             'config' => $this->config,
-            'latestfile' => $this->latestfile,
-            'largestfiles' => $this->largestfiles
+            'latestFile' => $this->latestFile,
+            'largestFiles' => $this->largestFiles
         ];
     }
 }

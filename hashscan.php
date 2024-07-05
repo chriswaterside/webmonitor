@@ -97,10 +97,12 @@ require 'classes/PHPMailer-6.9.1/src/SMTP.php';
 require 'classes/PHPMailer-6.9.1/src/Exception.php';
 $session = new Session();
 $domain = $session->domain();
+
 // set to the user defined error handler
 $old_error_handler = set_error_handler("Functions::errorHandler", E_ALL);
 register_shutdown_function("Functions::fatalHandler");
 Timeout::setTime();
+
 // first check if program update and if so install program
 $update = new Programupdate($session);
 if ($update->required()) {

@@ -8,7 +8,6 @@
 //    change email address(es) to be an array
 // version v1.02
 //    addition of $key field to set key to upload json log file to ramblers-webs.org.uk
-
 // The name of the organisation setting up the monitoring system or blank
 // this is included in any generated report 
 $organisation = "Ramblers Webs";
@@ -40,7 +39,6 @@ $database = "";
 $user = "";
 $password = "";
 
-
 // $path - top level to search, hashscan will monitor this folder and all subfolders
 //          except for those folders specified in the $skipFolders field
 //$path = "D:/Data/XAMPPServer/htdocs/";
@@ -61,14 +59,13 @@ $skipFolders = ["folder1/", "folder2/", "folder3/"];
 //  $joomlaFolders = ["abc","cde"];
 $joomlaFolders = ["folder*"];
 
-
 // $processExtensions - specify the file extensions that you wish to be checked, supply them in lower case.
 //      extensions are not treated as case sensitive so jpg will scan for both JPG and jpg files
 //      It is recommended to monitor at least the following file types
 //      "txt", "php", "jpg", "htm", "html", "cgi", "pdf", "ini", "htaccess"
 //      $processExtensions = ["txt", "php", "jpg", "htm", "html", "cgi", "pdf", "ini", "htaccess"];
 //      $processExtensions = NULL; processes all file types.
-$processExtensions = NULL; 
+$processExtensions = NULL;
 
 // $skipExtensions - if the above item is null then this option will ignore these extensions
 //         $skipExtensions = ["log", "pdf"];
@@ -89,7 +86,7 @@ $emailinterval = "P10D";
 //         $central_store_url = 'https://myserver/storejson.php';
 //         $central_store_url = null;
 $central_store_url = 'https://myserver/storejson.php';
-$central_store_key ="";
+$central_store_key = "";
 // This URL must point to a form which accepts the fields for 
 //      the domain name
 //      a key

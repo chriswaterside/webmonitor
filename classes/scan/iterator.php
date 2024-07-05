@@ -67,7 +67,6 @@ class ScanIterator {
             //$path = realpath($dir . DIRECTORY_SEPARATOR . $file);
             switch ($file) {
                 case ".":
-                    break;
                 case "..":
                     break;
                 default:
@@ -189,5 +188,4 @@ class ScanIterator {
             return false;
         }
     }
-
 }
