@@ -9,8 +9,8 @@ class AccountReport implements JsonSerializable {
 
     private $domain;
     private $path;
-    private $webMonitorVersion = "1.05";
-    private $reportVersion;
+    private $webMonitorVersion;
+    private $reportVersion = "1.05";
     private $noFilesScanned;
     private $totalSizeScanned;
     private $topLevelDirectories = [];
@@ -64,6 +64,7 @@ class AccountReport implements JsonSerializable {
     }
 
     private function getTopLevelDirs() {
+        array_push($this->topLevelDirectories, "");
         $directories = glob($this->path . '*', GLOB_ONLYDIR);
 
         $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
