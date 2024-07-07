@@ -17,7 +17,7 @@ class AccountReport implements JsonSerializable {
     private $controlFiles = [];
     private $wordPressVersions = [];
     private $joomlaVersions = [];
-    private $joomlaBackups;
+    private $joomlaBackups = [];
     private $config = [];
     private $creationDate;
     private $latestFile;
@@ -138,7 +138,6 @@ class AccountReport implements JsonSerializable {
     }
 
     private function getJoomlaBackups() {
-        $this->joomlaBackups = array();
         foreach ($this->topLevelDirectories as $dir) {
             $folder = $this->addPath($dir);
             $this->getAkeebaBackups($folder);
@@ -146,6 +145,10 @@ class AccountReport implements JsonSerializable {
     }
 
     private function getAkeebaBackups($folder) {
+        $path = $folder . "/administrator/components/com_akeebabackup/backup";
+        if (file_exists($path)) {
+            $this->findJPAfiles($path);
+        }
         $path = $folder . "/administrator/components/com_akeeba/backup";
         if (file_exists($path)) {
             $this->findJPAfiles($path);
