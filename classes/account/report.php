@@ -68,6 +68,14 @@ class AccountReport implements JsonSerializable {
         $directories = glob($this->path . '*', GLOB_ONLYDIR);
 
         $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
+        // remove Web Monitor folders
+        foreach ($this->topLevelDirectories as $key => $dir) {
+            switch ($this->removePath($dir)) {
+                case "monitor":
+                case "monitorOLD":
+                    unset($this->topLevelDirectories[$key]);
+            }
+        }
         foreach ($directories as $dir) {
             $directories = glob($dir . '/*', GLOB_ONLYDIR);
             $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
@@ -190,7 +198,7 @@ class AccountReport implements JsonSerializable {
     }
 
     private function findWPVersion($folder) {
-        $path = $folder . "wp-includes/version.php";
+        $path = $folder . "/wp-includes/version.php";
         $release = $this->findWPRelease($path);
 
         if ($release != "") {
