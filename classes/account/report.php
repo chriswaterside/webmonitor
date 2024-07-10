@@ -67,15 +67,17 @@ class AccountReport implements JsonSerializable {
         array_push($this->topLevelDirectories, "");
         $directories = glob($this->path . '*', GLOB_ONLYDIR);
 
-        $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
         // remove Web Monitor folders
-        foreach ($this->topLevelDirectories as $key => $dir) {
+        foreach ($directories as $key => $dir) {
             switch ($this->removePath($dir)) {
                 case "monitor":
                 case "monitorOLD":
-                    unset($this->topLevelDirectories[$key]);
+                    unset($directories[$key]);
             }
         }
+
+        $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
+
         foreach ($directories as $dir) {
             $directories = glob($dir . '/*', GLOB_ONLYDIR);
             $this->topLevelDirectories = array_merge($this->topLevelDirectories, $directories);
