@@ -383,11 +383,12 @@ class ScanDatabase extends Database {
 
     public function getLatestFiles() {
         $data = [];
-        $ok = parent::runQuery("SELECT filepath ,filedate ,id FROM baseline ORDER BY filedate DESC LIMIT 10 ");
+        
+        $ok = parent::runQuery("SELECT filepath ,filedate ,id FROM baseline ORDER BY filedate DESC LIMIT 10");
         if ($ok) {
             $results = parent::getResult();
-            $item = new stdClass();
-            while ($row = mysqli_fetch_array($results)) {
+            while ($row = mysqli_fetch_array($results)) { 
+                $item = new stdClass();
                 $item->path = $row["filepath"];
                 $item->date = $row["filedate"];
                 array_push($data, $item);
@@ -395,9 +396,6 @@ class ScanDatabase extends Database {
         } else {
             Logfile::writeError('Unable to retrieve latest file date(' . parent::error());
         }
-
-
-
         return $data;
     }
 

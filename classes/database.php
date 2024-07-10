@@ -128,7 +128,7 @@ class Database {
         // $query = "values ('" . addslashes($filepath) . "', '$hash', " . self::STATE_NEW . ", NOW(), 0)";
         $out = " values ('";
         foreach ($values as $value) {
-            $out.=$this->escapeString($value);
+            $out.=self::escapeString($value);
             $out.="', '";
         }
         $out = substr($out, 0, -3) . ") ";
