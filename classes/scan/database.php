@@ -75,7 +75,7 @@ class ScanDatabase extends Database {
     }
 
     public function getLargestFiles() {
-        $ok = parent::runQuery("SELECT filepath,filesize FROM baseline ORDER BY filesize DESC LIMIT 10");
+        $ok = parent::runQuery("SELECT filepath,filesize,id FROM baseline ORDER BY filesize DESC LIMIT 10");
         if ($ok) {
             $result = parent::getResult();
             $files = array();
@@ -133,7 +133,7 @@ class ScanDatabase extends Database {
         if ($norows == 0) {
             $hash = $this->calc_hash($file);
             $query = "Insert into baseline (filepath, filehash, filesize, filedate, state,  date_added, date_checked)
-			values ('" . $this->escapeString($filepath) . "', '$hash', '$filesize', '$filedate', " . self ::STATE_NEW . ", NOW(),NOW())";
+			values ('" . $this->escapeString($filepath) . "', '$hash', '$filesize', '$filedate', " . self::STATE_NEW . ", NOW(),NOW())";
             $ok = parent::runQuery($query);
             if (!$ok) {
                 Logfile::writeError($progresstext . "Unable to add NEW entry for " . $filepath);
@@ -381,19 +381,24 @@ class ScanDatabase extends Database {
         return $lastemailsent;
     }
 
-    public function getLatestFile() {
-        $tested = "";
-        $ok = parent::runQuery("SELECT filedate,id FROM baseline WHERE filepath LIKE 'public_html%' ORDER BY filedate DESC LIMIT 1 ");
+    public function getLatestFiles() {
+        $data = [];
+        $ok = parent::runQuery("SELECT filepath ,filedate ,id FROM baseline ORDER BY filedate DESC LIMIT 10 ");
         if ($ok) {
-            $result = parent::getResult();
-            $row = $result->fetch_row();
-            if (!$row == null) {
-                $tested = $row[0];
+            $results = parent::getResult();
+            $item = new stdClass();
+            while ($row = mysqli_fetch_array($results)) {
+                $item->path = $row["filepath"];
+                $item->date = $row["filedate"];
+                array_push($data, $item);
             }
         } else {
             Logfile::writeError('Unable to retrieve latest file date(' . parent::error());
         }
-        return $tested;
+
+
+
+        return $data;
     }
 
     public function getSuspectFiles() {
@@ -464,5 +469,4 @@ class ScanDatabase extends Database {
                 return "Unknown";
         }
     }
-
 }

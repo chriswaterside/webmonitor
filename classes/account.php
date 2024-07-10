@@ -7,7 +7,7 @@
  */
 class Account {
 
-    private $site;
+    private $report;
     private $path;
     private $domain;
     private $organisation;
@@ -24,7 +24,7 @@ class Account {
         $this->supportEmail = $email;
         $this->storeUrl = $url;
         $this->storeKey = $key;
-        $this->site = new AccountReport($session);
+        $this->report = new AccountReport($session);
     }
 
     public function emailHeader() {
@@ -46,8 +46,8 @@ class Account {
     }
 
     public function StoreStatus($scan) {
-        $this->site->setScanValues($scan);
-        $json = json_encode($this->site);
+        $this->report->setScanValues($scan);
+        $json = json_encode($this->report);
         $ok = file_put_contents($this->path . DIRECTORY_SEPARATOR . self::STATUS_FILE, $json);
         if ($ok === false) {
             Logfile::writeError("Unable to write local json log file: " . self::STATUS_FILE);

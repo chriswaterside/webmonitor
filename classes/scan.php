@@ -68,8 +68,8 @@ class Scan {
         return $this->totalsizescanned;
     }
 
-    public function getLatestFile() {
-        return $this->db->getLatestFile();
+    public function getLatestFiles() {
+        return $this->db->getLatestFiles();
     }
 
     public function getLargestFiles() {

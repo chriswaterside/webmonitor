@@ -20,7 +20,7 @@ class AccountReport implements JsonSerializable {
     private $joomlaBackups = [];
     private $config;
     private $creationDate;
-    private $latestFile;
+    private $latestFiles;
     private $largestFiles;
 
 // Format 1.05
@@ -318,7 +318,7 @@ class AccountReport implements JsonSerializable {
         if ($scan != null) {
             $this->noFilesScanned = $scan->getNoFilesScanned();
             $this->totalSizeScanned = $scan->getTotalSizeScanned();
-            $this->latestFile = $scan->getLatestFile();
+            $this->latestFiles = $scan->getLatestFiles();
             $this->largestFiles = $scan->getLargestFiles();
         }
     }
@@ -338,7 +338,7 @@ class AccountReport implements JsonSerializable {
             'joomlaBackups' => $this->joomlaBackups,
             'creationDate' => $this->creationDate,
             'config' => $this->config,
-            'latestFile' => $this->latestFile,
+            'latestFiles' => $this->latestFiles,
             'largestFiles' => $this->largestFiles
         ];
     }
