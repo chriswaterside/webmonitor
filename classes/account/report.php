@@ -18,7 +18,7 @@ class AccountReport implements JsonSerializable {
     private $wordPressVersions = [];
     private $joomlaVersions = [];
     private $joomlaBackups = [];
-    private $config = [];
+    private $config;
     private $creationDate;
     private $latestFile;
     private $largestFiles;
@@ -41,6 +41,7 @@ class AccountReport implements JsonSerializable {
         $this->creationDate = date("Y-m-d h:i:s");
         $this->domain = $session->domain();
         $this->path = $session->path() . DIRECTORY_SEPARATOR;
+        $this->config = new stdClass();
 
         $this->getTopLevelDirs();
         $this->getControlFiles();
@@ -103,7 +104,6 @@ class AccountReport implements JsonSerializable {
     }
 
     private function getJoomlaConfigs() {
-        $this->config = array();
         foreach ($this->topLevelDirectories as $dir) {
             $folder = $this->addPath($dir);
             $this->getJoomlaConfig($folder);
@@ -111,40 +111,38 @@ class AccountReport implements JsonSerializable {
     }
 
     private function getJoomlaConfig($folder) {
-        $path = $folder . "/configuration.php";
-        if (file_exists($path)) {
-            $this->findConfigValues($path);
+        if (file_exists($folder . "/configuration.php")) {
+            $this->findConfigValues($folder, "/configuration.php");
         }
     }
 
-    private function findConfigValues($file) {
-        $parts = explode("/", $file);
-        $count = count($parts);
-        $folder = $parts[$count - 2];
-        $contents = file_get_contents($file);
-        $parts = explode("\n", $contents);
-        foreach ($parts as $item) {
-            $dir = $this->removePath($folder);
-            $this->processConfigItem($dir, "\$sitename", $item);
-            $this->processConfigItem($dir, "\$gzip", $item);
-            $this->processConfigItem($dir, "\$caching", $item);
-            $this->processConfigItem($dir, "\$sef", $item);
-            $this->processConfigItem($dir, "\$sef_rewrite", $item);
-            $this->processConfigItem($dir, "\$sef_suffix", $item);
-            $this->processConfigItem($dir, "\$tmp_path", $item);
-            $this->processConfigItem($dir, "\$log_path", $item);
-        }
+    private function findConfigValues($folder, $file) {
+
+        $contents = file_get_contents($folder . $file);
+
+        $store = new AccountJoomlaconfig();
+        $store->setSitename($this->processConfig($contents, "\$sitename"));
+        $store->setTmp_path($this->processConfig($contents, "\$tmp_path"));
+        $store->setLog_path($this->processConfig($contents, "\$log_path"));
+        $dir = $this->removePath($folder);
+        $this->config->$dir = $store;
     }
 
-    private function processConfigItem($folder, $value, $config) {
-        $pos = strpos($config, $value . " ");
-        if ($pos !== false) {
-            $parts = explode("=", $config);
-            $item = trim(end($parts));
-            $item = str_replace("'", "", $item);
-            $item = str_replace(";", "", $item);
-            $this->config[] = $folder . "," . $value . "," . $item;
+    private function processConfig($contents, $searchItem) {
+        $item = null;
+        $lines = explode("\n", $contents);
+        foreach ($lines as $line) {
+            $pos = strpos($line, $searchItem . " ");
+
+            if ($pos !== false) {
+                $parts = explode("=", $line);
+                $item = trim(end($parts));
+                $item = str_replace("'", "", $item);
+                $item = str_replace(";", "", $item);
+                return $item;
+            }
         }
+        return $item;
     }
 
     private function getJoomlaBackups() {
