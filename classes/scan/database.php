@@ -78,11 +78,12 @@ class ScanDatabase extends Database {
         $ok = parent::runQuery("SELECT filepath,filesize,id FROM baseline ORDER BY filesize DESC LIMIT 10");
         if ($ok) {
             $result = parent::getResult();
-            $files = array();
+            $files = [];
             while ($row = $result->fetch_row()) {
-                $file = $row[0];
-                $size = $row[1];
-                $files[$file] = $size;
+                $item = new stdClass();
+                $item->path = $row[0];
+                $item->size =$row[1];
+                array_push($files, $item);
             }
             return $files;
         } else {
