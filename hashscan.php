@@ -9,6 +9,8 @@
 
 define("VERSION_NUMBER", "6.0.2");
 //   Version 6.0.2
+//          updates to the format of the saved reports, version 1.05
+//   Version 6.0.2
 //          PHPMailer 6.9.1
 //   version 6.0.1
 //          Changes to make system general and not Ramblers-Webs specific

@@ -15,8 +15,8 @@ class AccountReport implements JsonSerializable {
     private $totalSizeScanned;
     private $topLevelDirectories = [];
     private $controlFiles = [];
-    private $wordPressVersions = [];
-    private $joomlaVersions = [];
+    private $joomlaVersions;
+    private $wordPressVersions;
     private $joomlaBackups = [];
     private $config;
     private $creationDate;
@@ -42,6 +42,8 @@ class AccountReport implements JsonSerializable {
         $this->domain = $session->domain();
         $this->path = $session->path() . DIRECTORY_SEPARATOR;
         $this->config = new stdClass();
+        $this->joomlaVersions = new stdClass();
+        $this->wordPressVersions = new stdClass();
 
         $this->getTopLevelDirs();
         $this->getControlFiles();
@@ -182,8 +184,8 @@ class AccountReport implements JsonSerializable {
         $parts = explode("/", $file);
         $count = count($parts);
         $folder = $parts[$count - 6];
-        $file = end($parts);
-        $save = new AccountAkeeba($no, $size, $folder, $file);
+        $path = end($parts);
+        $save = new AccountAkeeba($no, $size, $folder, $path);
         $this->joomlaBackups[] = $save;
     }
 
@@ -192,7 +194,7 @@ class AccountReport implements JsonSerializable {
             $folder = $this->addPath($dir);
             $release = $this->findWPVersion($folder);
             if ($release != "") {
-                $this->wordPressVersions[$this->removePath($folder)] = $release;
+                $this->wordPressVersions->$dir = $release;
             }
         }
     }
@@ -227,7 +229,7 @@ class AccountReport implements JsonSerializable {
             $folder = $this->addPath($dir);
             $release = $this->findJoomlaVersion($folder);
             if ($release != "") {
-                $this->joomlaVersions[$this->removePath($folder)] = $release;
+                $this->joomlaVersions->$dir = $release;
             }
         }
     }
