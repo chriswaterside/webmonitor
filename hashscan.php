@@ -7,8 +7,8 @@
 //
 //  User options - all user options are contained in the config.php file
 
-define("VERSION_NUMBER", "6.0.2");
-//   Version 6.0.2
+define("VERSION_NUMBER", "6.0.3");
+//   Version 6.0.3
 //          updates to the format of the saved reports, version 1.05
 //   Version 6.0.2
 //          PHPMailer 6.9.1
