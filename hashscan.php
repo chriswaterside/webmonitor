@@ -7,7 +7,9 @@
 //
 //  User options - all user options are contained in the config.php file
 
-define("VERSION_NUMBER", "6.0.3");
+define("VERSION_NUMBER", "6.0.4");
+//   Version 6.0.4
+//          updates to storing data on central server 
 //   Version 6.0.3
 //          updates to the format of the saved reports, version 1.05
 //   Version 6.0.2

@@ -66,7 +66,6 @@ class Session {
             $this->email[] = $email;
         }
 
-
         if (isset($skipFolders)) {
             if ($skipFolders !== null) {
                 $this->skipFolders = $skipFolders;
@@ -82,6 +81,7 @@ class Session {
                 array_push($this->skipFolders, $value . "/administrator/cache/");
                 array_push($this->skipFolders, $value . "/plugins/captcha/hydra/imagex/");
                 array_push($this->skipFolders, $value . "/administrator/components/com_akeeba/backup/");
+                array_push($this->skipFolders, $value . "/images/eventgallery_generated/");
             }
         }
         if (isset($wordPressFolders)) {
